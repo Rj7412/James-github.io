@@ -1,3 +1,36 @@
-<html>
+<html><script>
+  async function sendOTP() {
+    const email = document.getElementById("email").value;
+    if (!email) { alert("Enter email"); return; }
+
+    const resp = await fetch('/request-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await resp.json();
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
+    document.getElementById("message").textContent = data.message || 'OTP sent.';
+  }
+
+  async function verifyOTP() {
+    const email = document.getElementById("email").value;
+    const otp = document.getElementById("otp").value;
+    const resp = await fetch('/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp })
+    });
+    const data = await resp.json();
+    if (data.recoveryToken) {
+      document.getElementById("message").textContent = 'OTP verified! Recovery token received.';
+      console.log('Recovery token (store securely):', data.recoveryToken);
+      // You can now send this token to /reset-password with new password
+    } else {
+      document.getElementById("message").textContent = data.error || 'Verification failed.';
+    }
+  }
+</script>
        
  
